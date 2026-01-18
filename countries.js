@@ -1,4 +1,4 @@
-const currency_data = {
+export const currency_data = {
   AED: { name: "United Arab Emirates Dirham", country: "AE" },
   AFN: { name: "Afghan Afghani", country: "AF" },
   ALL: { name: "Albanian Lek", country: "AL" },

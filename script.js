@@ -1,5 +1,7 @@
 "use strict";
 
+import { currency_data } from "./countries.js";
+
 const fromCurrency = document.querySelector("#from-currency");
 const toCurrency = document.querySelector("#to-currency");
 const fromCodeDisplay = document.querySelector("#from-code-display");
