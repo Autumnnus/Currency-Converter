@@ -1,6 +1,6 @@
 # CurrencyX - Professional Exchange Rates
 
-A high-performance, professional currency converter built with vanilla JavaScript. CurrencyX provides real-time global exchange rates with an institutional-grade interface.
+A high-performance, professional currency converter built with modern JavaScript standards. CurrencyX provides real-time global exchange rates with an institutional-grade interface and secure environmental management.
 
 ## Features
 
@@ -13,23 +13,47 @@ A high-performance, professional currency converter built with vanilla JavaScrip
 
 ## Technical Highlights
 
-- **Vanilla JS**: Zero heavy frameworks, optimized for speed and reliability.
-- **Secure Configuration**: Externalized API key management to prevent accidental exposure.
-- **Modern CSS**: Custom variable-driven design system with professional typography.
-- **Clean Code**: Follows SOLID principles and focused logic separation.
+- **Vite & ES Modules**: Built using Vite for lightning-fast development and optimized production builds.
+- **Secure Architecture**: Environment variable management using `.env` to protect sensitive API keys.
+- **Clean Code**: Zero generic comments, focused logic separation, and modular data management.
+- **Typography**: Professional data representation using `JetBrains Mono` and `Inter`.
 
 ## Setup
 
-1. Clone the repository.
-2. Get your free API key from [ExchangeRate-API](https://www.exchangerate-api.com/).
-3. Open `config.js`.
-4. Replace `YOUR_API_KEY_HERE` with your actual API key:
-   ```javascript
-   const config = {
-     apiKey: "your_api_key_goes_here",
-   };
+1. **Clone the repository**:
+
+   ```bash
+   git clone <repository-url>
+   cd Currency-Converter
    ```
-5. Open `index.html` in your browser or use a local server.
+
+2. **Install Dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment**:
+   - Create a `.env` file in the root directory.
+   - Add your API key from [ExchangeRate-API](https://www.exchangerate-api.com/):
+     ```env
+     VITE_API_KEY=your_actual_api_key_here
+     ```
+
+4. **Launch Application**:
+   ```bash
+   npm run dev
+   ```
+
+## Production Build
+
+To generate a production-ready bundle:
+
+```bash
+npm run build
+```
+
+The output will be in the `/dist` directory.
 
 ## Default Currencies
 
