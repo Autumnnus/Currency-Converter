@@ -19,7 +19,7 @@ const ratesModal = document.querySelector("#rates-modal");
 const exchangeList = document.querySelector("#exchange-list");
 const searchInput = document.querySelector("#rate-search");
 
-const API_KEY = config.apiKey;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 function init() {
   for (let code in currency_data) {
