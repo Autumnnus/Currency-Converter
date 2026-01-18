@@ -1,87 +1,144 @@
-const currencylist = document.querySelectorAll("form select");
-const convertButton = document.querySelector("form .convert-button");
-const amount = document.querySelector(".amount-value input");
-const currencyFrom = document.querySelector(".from-value select");
-const currencyTo = document.querySelector(".to-value select");
-const resultExchange = document.querySelector("form .result");
-const allresultExchange = document.querySelector("form .result-all");
-const reverseButton = document.querySelector("form .reverse-button");
-const toggleButton = document.getElementById("toggleButton");
-const apiKey = ""; //get api-key from https://app.exchangerate-api.com and paste here
+"use strict";
 
-for (let i = 0; i < currencylist.length; i++) {
-  for (currency_title in country_list) {
-    let selected = "";
-    if (i == 0) {
-      if (currency_title == "USD") {
-        selected = "selected";
-      }
-    } else {
-      if (currency_title == "EUR") {
-        selected = "selected";
-      }
+const fromCurrency = document.querySelector("#from-currency");
+const toCurrency = document.querySelector("#to-currency");
+const fromCodeDisplay = document.querySelector("#from-code-display");
+const toCodeDisplay = document.querySelector("#to-code-display");
+const fromLabel = document.querySelector("#from-label");
+const toLabel = document.querySelector("#to-label");
+const amountInput = document.querySelector("#amount");
+const fromImg = document.querySelector("#from-flag");
+const toImg = document.querySelector("#to-flag");
+const exchangeDisplay = document.querySelector("#exchange-rate-display");
+const rateInfo = document.querySelector("#rate-info");
+const reverseBtn = document.querySelector("#reverse-btn");
+const convertBtn = document.querySelector("#converter-form");
+const toggleListBtn = document.querySelector("#toggle-list");
+const closeModalBtn = document.querySelector("#close-modal");
+const ratesModal = document.querySelector("#rates-modal");
+const exchangeList = document.querySelector("#exchange-list");
+const searchInput = document.querySelector("#rate-search");
+
+const API_KEY = config.apiKey;
+
+function init() {
+  for (let code in currency_data) {
+    let name = currency_data[code].name;
+    let selectedFrom = code === "USD" ? "selected" : "";
+    let selectedTo = code === "TRY" ? "selected" : "";
+
+    let option = `<option value="${code}" ${selectedFrom}>${code} - ${name}</option>`;
+    fromCurrency.insertAdjacentHTML("beforeend", option);
+    toCurrency.insertAdjacentHTML("beforeend", option);
+  }
+  updateUI();
+  getExchangeRate();
+}
+
+function updateUI() {
+  const fromCode = fromCurrency.value;
+  const toCode = toCurrency.value;
+
+  fromCodeDisplay.innerText = fromCode;
+  toCodeDisplay.innerText = toCode;
+
+  fromLabel.innerText = currency_data[fromCode].name;
+  toLabel.innerText = currency_data[toCode].name;
+
+  fromImg.src = `https://flagsapi.com/${currency_data[fromCode].country}/flat/64.png`;
+  toImg.src = `https://flagsapi.com/${currency_data[toCode].country}/flat/64.png`;
+}
+
+async function getExchangeRate() {
+  let val = amountInput.value || 1;
+
+  if (!API_KEY) {
+    exchangeDisplay.innerText = "Error";
+    rateInfo.innerText = "API Key Missing";
+    return;
+  }
+
+  const url = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${fromCurrency.value}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.result === "success") {
+      const rate = data.conversion_rates[toCurrency.value];
+      const total = (val * rate).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+      });
+
+      exchangeDisplay.innerText = `${total} ${toCurrency.value}`;
+      rateInfo.innerText = `1 ${fromCurrency.value} = ${rate.toFixed(4)} ${toCurrency.value}`;
+
+      renderRatesBoard(data.conversion_rates);
     }
-    let optiontag = `<option value="${currency_title}" ${selected}>${currency_title}</option>`;
-
-    currencylist[i].insertAdjacentHTML("beforeend", optiontag);
+  } catch (err) {
+    exchangeDisplay.innerText = "Error";
+    rateInfo.innerText = "Network Failure";
   }
 }
 
-window.addEventListener("load", () => {
-  //Loads rate when the page open
-  converterValueRate();
-});
-
-convertButton.addEventListener("click", (a) => {
-  //Convert Button
-  a.preventDefault();
-  if (resultExchange.value == "Result") {
-    resultExchange.value = "";
+function renderRatesBoard(rates) {
+  exchangeList.innerHTML = "";
+  for (let code in rates) {
+    const name = currency_data[code]
+      ? currency_data[code].name
+      : "Unknown Currency";
+    const div = document.createElement("div");
+    div.className = "rate-item";
+    div.setAttribute("data-code", code);
+    div.innerHTML = `
+      <div>
+        <span class="code">${code}</span>
+        <span style="color:var(--text-dim); margin-left:8px; font-size:11px;">${name}</span>
+      </div>
+      <span class="val">${rates[code].toFixed(4)}</span>
+    `;
+    exchangeList.appendChild(div);
   }
-  converterValueRate();
-});
-
-toggleButton.addEventListener("click", function (event) {
-  //All Exchange Rates Hide/Show Button
-  event.preventDefault();
-  allresultExchange.classList.toggle("hidden");
-});
-
-reverseButton.addEventListener("click", () => {
-  //Reverse Button
-  let exchangeValue = currencyFrom.value;
-  currencyFrom.value = currencyTo.value;
-  currencyTo.value = exchangeValue;
-  converterValueRate();
-});
-
-function converterValueRate() {
-  let amountValue = amount.value;
-  if (amountValue == "" || amountValue == 0) {
-    amount.value = "1";
-    amountValue = 1;
-  }
-  let url = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${currencyFrom.value}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((result) => {
-      let exchangerate = result.conversion_rates[currencyTo.value];
-      let totalExRate = (amountValue * exchangerate).toFixed(2);
-      resultExchange.innerText = `${amountValue} ${currencyFrom.value} = ${totalExRate} ${currencyTo.value}`;
-    });
-  fetch(url)
-    .then((response) => response.json())
-    .then((result) => {
-      console.log(result.conversion_rates);
-      let exchangeList = document.getElementById("all-exchange-list");
-      for (let prop in result.conversion_rates) {
-        let li = document.createElement("li");
-        li.innerText = prop + ": " + result.conversion_rates[prop];
-        li.classList.add("list-group-item");
-        exchangeList.appendChild(li);
-      }
-      for (let i = 0; i < exchangeList.children.length; i++) {
-        exchangeList.children[i].remove();
-      }
-    });
 }
+
+fromCurrency.addEventListener("change", () => {
+  updateUI();
+  getExchangeRate();
+});
+
+toCurrency.addEventListener("change", () => {
+  updateUI();
+  getExchangeRate();
+});
+
+reverseBtn.addEventListener("click", () => {
+  let temp = fromCurrency.value;
+  fromCurrency.value = toCurrency.value;
+  toCurrency.value = temp;
+  updateUI();
+  getExchangeRate();
+});
+
+convertBtn.addEventListener("submit", (e) => {
+  e.preventDefault();
+  getExchangeRate();
+});
+
+toggleListBtn.addEventListener("click", () =>
+  ratesModal.classList.remove("hidden"),
+);
+closeModalBtn.addEventListener("click", () =>
+  ratesModal.classList.add("hidden"),
+);
+
+searchInput.addEventListener("input", (e) => {
+  const term = e.target.value.toUpperCase();
+  const items = exchangeList.querySelectorAll(".rate-item");
+  items.forEach((item) => {
+    const code = item.getAttribute("data-code");
+    item.style.display = code.includes(term) ? "flex" : "none";
+  });
+});
+
+window.addEventListener("load", init);
